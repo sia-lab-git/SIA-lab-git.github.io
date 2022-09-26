@@ -113,14 +113,14 @@
 
 <html>
   <head>
-        <title>Optimal Control & Learned Perception</title>
+        <title>High-Dimensional Reachability Guarantees</title>
         <meta property="og:title" content="Factored 3D" />
   </head>
 
   <body>
     <br>
     <center>
-    <span style="font-size:42px">Combining Optimal Control and Learning for <br> Visual Navigation in Novel Environments</span>
+    <span style="font-size:42px">Generating Formal Safety Assurances for<br>High-Dimensional Reachability</span>
     </center>
 
     <br><br>
@@ -128,31 +128,13 @@
        <tr>
         <td align=center width=100px>
         <center>
-        <span style="font-size:20px"><a href="http://people.eecs.berkeley.edu/~somil/">Somil Bansal*<sup>1</sup></a></span>
+        <span style="font-size:20px"><a href="http://people.eecs.berkeley.edu/~somil/">Albert Lin<sup>1</sup></a></span>
         </center>
         </td>
 
         <td align=center width=100px>
         <center>
-        <span style="font-size:20px"><a href="https://sites.google.com/view/vtolani/">Varun Tolani*<sup>1</sup></a></span>
-        </center>
-        </td>
-
-        <td align=center width=100px>
-        <center>
-        <span style="font-size:20px"><a href="http://saurabhg.web.illinois.edu">Saurabh Gupta<sup>2</sup></a></span>
-        </center>
-        </td>
-
-        <td align=center width=100px>
-        <center>
-        <span style="font-size:20px"><a href="http://www.eecs.berkeley.edu/~malik/">Jitendra Malik<sup>1,2</sup></a></span>
-        </center>
-        </td>
-
-        <td align=center width=100px>
-        <center>
-        <span style="font-size:20px"><a href="https://people.eecs.berkeley.edu/~tomlin/">Claire Tomlin<sup>1</sup></a></span>
+        <span style="font-size:20px"><a href="http://people.eecs.berkeley.edu/~somil/">Somil Bansal<sup>2</sup></a></span>
         </center>
         </td>
      </tr>
@@ -163,7 +145,7 @@
        <tr>
         <td align=center width=100px>
         <center>
-        <span style="font-size:15px"><sup>1</sup> University of California, Berkeley <sup>2</sup> Facebook AI Research</span>
+        <span style="font-size:15px"><sup>1</sup> Princeton University <sup>2</sup> University of Southern California</span>
         </center>
         </td>
      </tr>
@@ -174,7 +156,7 @@
                   <td width=1000>
                     <center>
                       <!-- METHOD VIDEO HERE -->
-                        <iframe width="840" height="473" src="https://www.youtube.com/embed/7nC19Ai9u5E" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        <iframe width="840" height="473" src="#" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                   </center>
                   </td>
               </tr>
@@ -187,19 +169,14 @@
     <center><h1>Abstract</h1></center>
 
             <br>
-            Model-based control is a popular paradigm for robot navigation because
-            it can leverage a known dynamics model to efficiently plan robust robot trajectories.
-            However, it is challenging to use model-based methods in settings where the
-            environment is a priori unknown and can only be observed partially through onboard sensors on the robot. In this work, we address this short-coming by coupling
-            model-based control with learning-based perception. The learning-based perception
-            module produces a series of <i>waypoints</i> that guide the robot to the goal via a collisionfree path. These waypoints are used by a model-based planner to generate a smooth
-            and dynamically feasible trajectory that is executed on the physical system using
-            feedback control. Our experiments in simulated real-world cluttered environments
-            and on an actual ground vehicle demonstrate that the proposed approach can reach
-            goal locations more reliably and efficiently in novel environments as compared to
-            purely geometric mapping-based or end-to-end learning-based alternatives. Our
-            approach does not rely on detailed explicit 3D maps of the environment, works well
-            with low frame rates, and generalizes well from simulation to the real world.
+            Providing formal safety and performance guarantees for autonomous systems is becoming increasingly important as they are integrated in our society. Hamilton-Jacobi (HJ) reachability analysis is a popular formal verification tool for providing these guarantees, since it can handle general nonlinear system dynamics, bounded adversarial system disturbances, and state and input constraints. 
+However, it involves solving a PDE, whose computational and memory complexity scales exponentially with respect to the state dimensionality, making its direct use on large-scale systems intractable.
+A recently proposed method called DeepReach overcomes this challenge by leveraging a sinusoidal neural network PDE solver for high-dimensional reachability problems, whose computational requirements scale with the complexity of the underlying reachable tube rather than the state space dimension.
+Unfortunately, neural networks can make errors and thus the computed solution may not be safe, which falls short of achieving our overarching goal to provide formal safety assurances. 
+In this work, we propose a method to compute an error bound for the DeepReach solution. 
+This error bound can then be used for reachable tube correction, resulting in a provably safe approximation of the true reachable tube.
+We also propose a scenario optimization-based approach to compute this error bound for general nonlinear dynamical systems.
+We demonstrate the efficacy of the proposed approach in obtaining reachable tubes for high-dimensional rocket-landing and multi-vehicle collision-avoidance problems.
             <br><br>
           <hr>
          <!-- <table align=center width=550px> -->
@@ -209,9 +186,9 @@
                     <!--<td width=300px align=left>-->
                     <!-- <a href="http://arxiv.org/pdf/1603.08511.pdf"> -->
                   <!-- <td><a href="#"><img class="layered-paper-big" style="height:175px" src="./resources/images/paper.png"/></a></td> -->
-                  <td><a href="https://arxiv.org/pdf/1903.02531.pdf"><img style="height:280px" src="./resources/images/arxiv_paper_preview.png"/></a></td>
-                  <td><span style="font-size:14pt">Bansal, Tolani, Gupta, Malik, Tomlin<br><br>
-                          Combining Optimal Control and Learning for <br> Visual Navigation in Novel Environments
+                  <td><a href="./papers/DeepReach_Verification.pdf"><img style="height:280px" src="./resources/images/DeepReach_Verification_preview.png"/></a></td>
+                  <td><span style="font-size:14pt">Lin, Bansal<br><br>
+                          Generating Formal Safety Assurances for <br> High-Dimensional Reachability
                   <!-- [hosted on <a href="#">arXiv</a>]</a> -->
                     </td>
               </tr>
@@ -221,7 +198,7 @@
           <table align=center width=180px>
               <tr>
                   <td><span style="font-size:14pt"><center>
-                      <a href="https://arxiv.org/pdf/1903.02531.pdf">[pdf]</a>
+                      <a href="./papers/DeepReach_Verification.pdf">[pdf]</a>
                     </center></td>
 
                   <td><span style="font-size:14pt"><center>
@@ -244,7 +221,7 @@
 
             <table align=center width=800px>
               <tr><center> <br>
-                <span style="font-size:28px">&nbsp;<a href='https://github.com/smlbansal/Visual-Navigation-Release'>[GitHub]</a>
+                <span style="font-size:28px">&nbsp;<a href='#'>[GitHub]</a>
 
                 <span style="font-size:28px"></a></span>
               <br>
@@ -253,7 +230,7 @@
             <br>
           <hr>
 
-          <center><h1>Results (Simulation)</h1></center>
+          <center><h1>Results</h1></center>
           <table align=center width=900px>
               <tr>
                   <td width=600px>
@@ -302,8 +279,10 @@
               </tr>
           </table>
           <hr>
+
+          <!--           
           <center><h1>Hardware Experiments</h1></center>
-          <!-- <center> -->
+          <!- - <center> - ->
             
             <br>
             <table align=center width=900px>
@@ -333,21 +312,22 @@
                   </td>
               </tr>
           </table>
-          <!-- </center> -->
-          <br>
+          <!- - </center> - ->
+          <br> 
+          -->
 
           <center><h2>Videos</h2></center>
           <table align=center>
             <tr>
               <td>
                 <center>
-                      <iframe width="373" height="210" src="https://www.youtube.com/embed/AbSk_gklQko" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
+                      <iframe width="373" height="210" src="#" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
                 </center>
               </td>
 
               <td>
                 <center>
-                      <iframe width="373" height="210" src="https://www.youtube.com/embed/mGg5LerfUgI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
+                      <iframe width="373" height="210" src="#" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
                 </center>
               </td>
             </tr>
@@ -355,13 +335,13 @@
             <tr>
               <td>
                 <center>
-                      <iframe width="373" height="210" src="https://www.youtube.com/embed/7c_c1DE_78M" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
+                      <iframe width="373" height="210" src="#" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
                 </center>
               </td>
 
               <td>
                 <center>
-                      <iframe width="373" height="210" src="https://www.youtube.com/embed/McipKv3QQKg" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
+                      <iframe width="373" height="210" src="#" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
                 </center>
               </td>
 
@@ -372,13 +352,13 @@
             <tr>
               <td>
                 <center>
-                      <iframe width="373" height="210" src="https://www.youtube.com/embed/zyI-SW2KxLU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
+                      <iframe width="373" height="210" src="#" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
                 </center>
               </td>
             </tr>
             <td width=800px>
                 <center>
-                    <span style="font-size:14px"><i> <span style="font-weight:bold">Experiments 1-5</span> We demonstrate that our method is able to leverage the benefits of learned visual semantics and model based control in a variety of real world settings including navigating cluttered hallways (Experiments 1 and 2), cluttered rooms (bikes, chairs, tables, etc.) (Experiments 1 and 3), and leaving a room through a doorway (Experiment 3) in diverse lighting conditions (Experiment 4). Given the reactive nature of our algorithm the robot is also somewhat robust to moving obstacles (Experiment 5).</i>
+                    <span style="font-size:14px"><i> <span style="font-weight:bold">---</span> ---</i>
                     <br><br><br>
                 </center>
               </td>
@@ -389,7 +369,7 @@
               <tr>
                 <td width=800px>
                   <center>
-                    <h1>Failure Modes of End-to-End and Mapping-Based Methods</h1>
+                    <h1>---</h1>
                   </center>
                 </td>
               </tr>
@@ -403,7 +383,7 @@
               </tr>
               <td width=600px>
                     <center>
-                        <span style="font-size:14px"><i> The End-To-End Method tends to fail in cases where aggressive, yet nuanced control <br>profiles are needed. The Mapping-Based method fails in cases where the depth sensor fails <br>to correctly image the environment (e.g. thin wires, matte and shiny materials, bright sunlight, etc.).</i>
+                        <span style="font-size:14px"><i>---</i>
                         <br><br><br>
                   </center>
                   </td>
@@ -417,7 +397,7 @@
                     <td>
                       <left>
                 <center><h1>Acknowledgements</h1></center>
-                This research is supported in part by the DARPA Assured Autonomy program under agreement number FA8750-18-C-0101, by NSF under the CPS Frontier project VeHICaL project (1545126), by NSF grants 1739816 and 1837132, by the UC-Philippine-California Advanced Research Institute under project IIID-2016-005, by SRC under the CONIX Center, and by Berkeley Deep Drive.
+                ---
                 <br>
                 <br>
                 This webpage template was borrowed from some <a href="https://richzhang.github.io/colorization/">colorful folks</a>.
