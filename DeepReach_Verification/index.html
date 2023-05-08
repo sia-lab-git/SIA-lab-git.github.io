@@ -168,22 +168,31 @@
 
             <br>
 
-            <br><br>
+            <br>
+            <img src="./resources/images/Graphical_Abstract.jpg">
+            <br>
           <hr>
     <center><h1>Abstract</h1></center>
 
             <br>
-            Providing formal safety and performance guarantees for autonomous systems is becoming increasingly important as they are integrated in our society. Hamilton-Jacobi (HJ) reachability analysis is a popular formal verification tool for providing these guarantees, since it can handle general nonlinear system dynamics, bounded adversarial system disturbances, and state and input constraints. 
-However, it involves solving a PDE, whose computational and memory complexity scales exponentially with respect to the state dimensionality, making its direct use on large-scale systems intractable.
-A recently proposed method called DeepReach overcomes this challenge by leveraging a sinusoidal neural network PDE solver for high-dimensional reachability problems, whose computational requirements scale with the complexity of the underlying reachable tube rather than the state space dimension.
-Unfortunately, neural networks can make errors and thus the computed solution may not be safe, which falls short of achieving our overarching goal to provide formal safety assurances. 
-In this work, we propose a method to compute an error bound for the DeepReach solution. 
-This error bound can then be used for reachable tube correction, resulting in a provably safe approximation of the true reachable tube.
-We also propose a scenario optimization-based approach to compute this error bound for general nonlinear dynamical systems.
-We demonstrate the efficacy of the proposed approach in obtaining reachable tubes for high-dimensional rocket-landing and multi-vehicle collision-avoidance problems.
+            Providing formal safety and performance guarantees for autonomous systems is becoming increasingly important. 
+            Hamilton-Jacobi (HJ) reachability analysis is a popular formal verification tool for providing these guarantees, 
+            since it can handle general nonlinear system dynamics, bounded adversarial system disturbances, and state and input constraints. 
+            However, it involves solving a PDE, whose computational and memory complexity scales exponentially with respect to the state dimensionality, 
+            making its direct use on large-scale systems intractable. A recently proposed method called DeepReach overcomes this challenge by leveraging a sinusoidal neural PDE solver for high-dimensional reachability problems, 
+            whose computational requirements scale with the complexity of the underlying reachable tube rather than the state space dimension. 
+            Unfortunately, neural networks can make errors and thus the computed solution may not be safe, 
+            which falls short of achieving our overarching goal to provide formal safety assurances. In this work, we propose a method to compute an error bound for the DeepReach solution. 
+            This error bound can then be used for reachable tube correction, resulting in a safe approximation of the true reachable tube. 
+            We also propose a scenario-based optimization approach to compute a probabilistic bound on this error correction for general nonlinear dynamical systems. 
+            We demonstrate the efficacy of the proposed approach in obtaining probabilistically safe reachable tubes for high-dimensional rocket-landing and multi-vehicle collision-avoidance problems.
             <br><br>
           <hr>
-          <iframe width="960" height="540" src="https://youtu.be/L7HuwDb2MLQ" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          <center><h1>Video</h1></center>
+          <iframe width="960" height="540" src="https://youtube.com/embed/L7HuwDb2MLQ"></iframe>
+          <hr>
+          <center><h1>Poster</h1></center>
+          <a href="./resources/Poster.pdf"><img style="height:280px" src="./resources/images/Poster_Image.jpg"/></a>
           <hr>
          <!-- <table align=center width=550px> -->
             <table align=center width=650>
@@ -192,7 +201,7 @@ We demonstrate the efficacy of the proposed approach in obtaining reachable tube
                     <!--<td width=300px align=left>-->
                     <!-- <a href="http://arxiv.org/pdf/1603.08511.pdf"> -->
                   <!-- <td><a href="#"><img class="layered-paper-big" style="height:175px" src="./resources/images/paper.png"/></a></td> -->
-                  <td><a href="./resources/DeepReach_Verification.pdf"><img style="height:280px" src="./resources/images/DeepReach_Verification_preview.png"/></a></td>
+                  <td><a href="./resources/DeepReach_Verification.pdf"><img style="height:280px" src="./resources/images/DeepReach_Verification_preview.jpg"/></a></td>
                   <td><span style="font-size:14pt">Lin, Bansal<br><br>
                           Generating Formal Safety Assurances for <br> High-Dimensional Reachability
                   <!-- [hosted on <a href="#">arXiv</a>]</a> -->
