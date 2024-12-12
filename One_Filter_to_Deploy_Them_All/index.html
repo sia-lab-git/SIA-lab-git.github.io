@@ -167,6 +167,7 @@
   </head>
 
   <body>
+
     <br><br>
     <center>
     <span style="font-size:42px">One Filter to Deploy Them All: Robust Safety for Quadrupedal Navigation in Unknown Environemnts</span>
@@ -221,305 +222,65 @@
 
     <img src="./resources/images/overview.png" width="100%" height="auto">
 
-    <br>
+    <hr>
+
     <center><h1>Abstract</h1></center>
-    As learning-based methods for legged robots rapidly grow in popularity, it is important that we can provide safety assurances efficiently across different controllers and environments.
-Existing works either rely on <i>a priori</i> knowledge of the environment and safety constraints to ensure system safety or provide assurances for a specific locomotion policy.
-To address these limitations, we propose an observation-conditioned reachability-based (OCR) safety-filter framework.
-Our key idea is to use an OCR value network (OCR-VN) that predicts the optimal control-theoretic safety value function for new failure regions and dynamic uncertainty during deployment time.
-Specifically, the OCR-VN facilitates rapid safety adaptation through two key components: a LiDAR-based input that allows the dynamic construction of safe regions in light of new obstacles and a disturbance estimation module that accounts for dynamics uncertainty in the wild.
-The predicted safety value function is used to construct an adaptive safety filter that overrides the nominal quadruped controller when necessary to maintain safety.
-Through simulation studies and hardware experiments on a Unitree Go1 quadruped, we demonstrate that the proposed framework can automatically safeguard a wide range of hierarchical quadruped controllers, adapts to novel environments, and is robust to unmodeled dynamics <i>without a priori access to the controllers or environments</i> - hence, ``One Filter to Deploy Them All''.
-    <br>
+    <p>
+      As learning-based methods for legged robots rapidly grow in popularity, it is important that we can provide safety assurances efficiently across different controllers and environments.
+      Existing works either rely on <i>a priori</i> knowledge of the environment and safety constraints to ensure system safety or provide assurances for a specific locomotion policy.
+      To address these limitations, we propose an observation-conditioned reachability-based (OCR) safety-filter framework.
+      Our key idea is to use an OCR value network (OCR-VN) that predicts the optimal control-theoretic safety value function for new failure regions and dynamic uncertainty during deployment time.
+      Specifically, the OCR-VN facilitates rapid safety adaptation through two key components: a LiDAR-based input that allows the dynamic construction of safe regions in light of new obstacles and a disturbance estimation module that accounts for dynamics uncertainty in the wild.
+      The predicted safety value function is used to construct an adaptive safety filter that overrides the nominal quadruped controller when necessary to maintain safety.
+      Through simulation studies and hardware experiments on a Unitree Go1 quadruped, we demonstrate that the proposed framework can automatically safeguard a wide range of hierarchical quadruped controllers, adapts to novel environments, and is robust to unmodeled dynamics <i>without a priori access to the controllers or environments</i> - hence, ``One Filter to Deploy Them All''.
+    </p>
+
+    <hr>
 
     <center><h1>Approach</h1></center>
+    <video width="100%" height="auto" controls>
+      <source src="./resources/videos/placeholder.mp4" type="video/mp4">
+    </video>
+
+    <hr>
 
     <center><h1>Adapting to New Obstacles</h1></center>
+    <video width="100%" height="auto" controls>
+      <source src="./resources/videos/placeholder.mp4" type="video/mp4">
+    </video>
+
+    <hr>
 
     <center><h1>Adapting to Dynamics Uncertainty</h1></center>
+    <video width="100%" height="auto" controls>
+      <source src="./resources/videos/placeholder.mp4" type="video/mp4">
+    </video>
+
+    <hr>
 
     <center><h1>Safeguarding Different Controllers</h1></center>
-   
-    <!--
-    <table align=center>
-            <tr>
-                <td width=1000>
-                  <center>
-                    <!- - METHOD VIDEO HERE - ->
-                      <iframe width="840" height="473" src="#" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                </center>
-                </td>
-            </tr>
-    </table>
-    -->
-        
+    <video width="100%" height="auto" controls>
+      <source src="./resources/videos/placeholder.mp4" type="video/mp4">
+    </video>
 
+    <hr>
+
+    <center><h1>Acknowledgements</h1></center>
+    <table align=center width=1100px>
+      <tr>
+        <td>
+          <left>
+            This work is supported in part by a NASA Space Technology Graduate Research Opportunity, the NSF CAREER Program under award 2240163, and the DARPA ANSR program.
             <br>
-
+            ---
             <br>
-            <!-- <img src="./resources/images/Graphical_Abstract.jpg"> -->
-            <br>
-          <hr>
-
-            <br>
-            Learning-based approaches for controlling safety-critical autonomous systems are rapidly growing
-            in popularity; thus, it is important to provide rigorous and robust assurances on their performance
-            and safety. Hamilton-Jacobi (HJ) reachability analysis is a popular formal verification tool for
-            providing such guarantees, since it can handle general nonlinear system dynamics, bounded adversarial
-            system disturbances, and state and input constraints. However, it involves solving a Partial
-            Differential Equation (PDE), whose computational and memory complexity scales exponentially
-            with respect to the state dimension, making its direct use on large-scale systems intractable. To
-            overcome this challenge, neural approaches, such as DeepReach, have been used to synthesize
-            reachable tubes and safety controllers for high-dimensional systems. However, verifying these
-            neural reachable tubes remains challenging. In this work, we propose two different verification
-            methods, based on robust scenario optimization and conformal prediction, to provide probabilistic
-            safety guarantees for neural reachable tubes. Our methods allow a direct trade-off between resilience
-            to outlier errors in the neural tube, which are inevitable in a learning-based approach, and
-            the strength of the probabilistic safety guarantee. Furthermore, we show that split conformal prediction,
-            a widely used method in the machine learning community for uncertainty quantification,
-            reduces to a scenario-based approach, making the two methods equivalent not only for verification
-            of neural reachable tubes but also more generally. To our knowledge, our proof is the first in the
-            literature to show a strong relationship between the highly related but disparate fields of conformal
-            prediction and scenario optimization. Finally, we propose an outlier-adjusted verification approach
-            that harnesses information about the error distribution in neural reachable tubes to recover greater
-            safe volumes. We demonstrate the efficacy of the proposed approaches for the high-dimensional
-            problems of multi-vehicle collision avoidance and rocket landing with no-go zones.
-            <br><br>
-          <hr>
-          <!-- <center><h1>Video</h1></center>
-          <iframe width="960" height="540" src="https://youtube.com/embed/L7HuwDb2MLQ"></iframe> -->
-          <hr>
-          <!-- <center><h1>Poster</h1></center>
-          <a href="./resources/Poster.pdf"><img style="height:280px" src="./resources/images/Poster_Image.jpg"/></a> -->
-          <hr>
-         <!-- <table align=center width=550px> -->
-            <table align=center width=650>
-             <center><h1>Paper</h1></center>
-                <tr>
-                    <!--<td width=300px align=left>-->
-                    <!-- <a href="http://arxiv.org/pdf/1603.08511.pdf"> -->
-                  <!-- <td><a href="#"><img class="layered-paper-big" style="height:175px" src="./resources/images/paper.png"/></a></td> -->
-                  <td><a href="./resources/Verification_of_Neural_Reachable_Tubes.pdf"><img style="height:280px" src="./resources/images/paper_preview.jpg"/></a></td>
-                  <td><span style="font-size:14pt">Lin, Bansal<br><br>
-                          Verification of Neural Reachable Tubes <br> via Scenario Optimization and Conformal Prediction
-                  <!-- [hosted on <a href="#">arXiv</a>]</a> -->
-                    </td>
-              </tr>
-            </table>
-          <br>
-
-          <table align=center width=180px>
-              <tr>
-                  <td><span style="font-size:14pt"><center>
-                      <a href="./resources/Verification_of_Neural_Reachable_Tubes.pdf">[pdf]</a>
-                    </center></td>
-
-                  <!-- <td><span style="font-size:14pt"><center>
-                      <a href="./resources/bibtex.bib">[Bibtex]</a>
-                    </center></td> -->
-              </tr>
-            </table>
-              <br>
-
-                <hr>
-
-         <!-- <center><h1>Code</h1></center>
-            <table align=center width=1000px>
-                <tr>
-                        <center>
-                          <a href=''><img class="round" style="height:400" src="./resources/images/framework.png"/></a>
-                        </center>
-              </tr>
-          </table>
-
-            <table align=center width=800px>
-              <tr><center> <br>
-                <span style="font-size:28px">&nbsp;<a href='https://github.com/sia-lab-git/deepreach-verification'>[GitHub]</a>
-
-                <span style="font-size:28px"></a></span>
-              <br>
-              </center></tr>
-          </table>
-            <br>
-          <hr> -->
-
-          <!-- 
-          <center><h1>Results</h1></center>
-          <table align=center width=900px>
-              <tr>
-                  <td width=600px>
-                    <center>
-                        <a href="./resources/images/results_simulation.png"><img src = "./resources/images/results_simulation.png" width="800px"></img></href></a><br>
-                  </center>
-                  </td>
-              </tr>
-                  <td width=600px>
-                    <center>
-                        <span style="font-size:14px"><i> <span style="font-weight:bold">Metrics</span> We evaluate LB-WayPtNav against a comparable end-to-end method and a purely geometric method which uses depth images to estimate an occupancy map of the environment for use in planning via Model Predictive Control (MPC). For the geometric method we compare against both an agent with memory which estimates an occupancy grid based on all the depth images thus far and one that is reactive and estimates an occupancy grid based only on its current view of the environment. All methods are tested on a set of 185 navigational goals in a previously unseen test environment. Our method is approximately 20-25% more successful on these new goals than the end-to-end method. The success rate of LB-WayPtNav, which itself is reactive, is comparable to that of the Mapping (memoryless) baseline. The remaining three metrics are computed on the subset of test goals on which all methods are successful. We find that the model based method navigates to the goal region 1.5 to 2 times as quickly as the end-to-end method with average acceleration approximately half that of the end-to-end method and average jerk approximately 1/20th that of the end-to-end method. LB-WayPtNav is comparable to the mapping based methods in terms of time to reach goal, acceleration, and jerk.</i>
-                  </center>
-                  </td>
-              </tr>
-          </table>
-          <br>
-          <table align=center width=900px>
-              <tr>
-                  <td width=600px>
-                    <center>
-                        <a href="./resources/images/velocity_profile.png"><img src = "./resources/images/velocity_profile.png" height="220px"></img></href></a><br>
-                  </center>
-                  </td>
-              </tr>
-                  <td width=600px>
-                    <center>
-                        <span style="font-size:14px"><i> <span style="font-weight:bold">Control Profiles</span> The proposed method produces significantly smoother control profiles than the end-to-end method which are much easier to track on a real physical system. The jerky profiles learned by the end-to-end method could lead to increased probability of hardware failure on a real system as well. Additionally, these jerky control profiles would lead to dramatically increased power usage and thus decreased battery life.</i>
-                  </center>
-                  </td>
-              </tr>
-          </table>
-          <br>
-          <table align=center width=900px>
-              <tr>
-                  <td width=600px>
-                    <center>
-                        <iframe width="560" height="315" src="https://www.youtube.com/embed/Eny_WAynRms" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
-                  </center>
-                  </td>
-              </tr>
-                  <td width=600px>
-                    <center>
-                        <span style="font-size:14px"><i> <span style="font-weight:bold">Learned Visual Semantics</span> We find that, through the training process, the agent learns generalizable visual semantics of indoor<br> office environments (i.e. exiting a room by first locating the door and then moving through it, going around a chair that is only partially<br> visible, locating and moving into a hallway to then move into a room connected to this hallway). The agent exhibits this behavior <br>in visually diverse scenarios where providing such supervision explicitly can be very difficult.</i>
-                  </center>
-                  </td>
-              </tr>
-          </table>
-          <hr>
-         
-          <center><h1>Hardware Experiments</h1></center>
-          <!- - <center> - ->
-            
-            <br>
-            <table align=center width=900px>
-              <tr>
-                  <td align=center>
-                    <a href="./resources/images/front_fig_comp.png"><img src = "./resources/images/front_fig_comp.png" height=200px></img></href></a><br>
-                  </td>
-                  <td>
-                    <p>We deploy our simulation trained algorithm on a Turtlebot 2 to test on real-world navigational scenarios. Each experiment is visualized from three different viewpoints, however the robot only sees the "First Person View" (also labeled Robot View). The other two viewpoints are provided for context only. We do not train or finetune our algorithm in any way on real data. All experiments are shown in realtime.</p>
-                  </td>
-              </tr>
-            </table>
-            <br>
-            <br>
-              <table align=center width=900px>
-              <tr>
-                  <td width=600px>
-                    <center>
-                        <a href="./resources/images/results_experiments.png"><img src = "./resources/images/results_experiments.png" width="800px"></img></href></a><br>
-                  </center>
-                  </td>
-              </tr>
-                  <td width=600px>
-                    <center>
-                        <span style="font-size:14px"><i> <span style="font-weight:bold">Metrics</span> In real-world experiments LB-WayPtNav continues to perform well, however performance of the mapping based methods degrades considerably due to errors in depth estimation on shiny/matte objects (bike frames, tires, computer monitors, etc.), on thin/intricate objects (power cables, chair legs), and in the presence of strong infared light (sunlight).</i>
-                  </center>
-                  </td>
-              </tr>
-          </table>
-          <!- - </center> - ->
-          <br> 
-
-          <center><h2>Videos</h2></center>
-          <table align=center>
-            <tr>
-              <td>
-                <center>
-                      <iframe width="373" height="210" src="#" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
-                </center>
-              </td>
-
-              <td>
-                <center>
-                      <iframe width="373" height="210" src="#" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
-                </center>
-              </td>
-            </tr>
-
-            <tr>
-              <td>
-                <center>
-                      <iframe width="373" height="210" src="#" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
-                </center>
-              </td>
-
-              <td>
-                <center>
-                      <iframe width="373" height="210" src="#" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
-                </center>
-              </td>
-
-            </tr>
-          </table>
-
-          <table align=center>
-            <tr>
-              <td>
-                <center>
-                      <iframe width="373" height="210" src="#" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
-                </center>
-              </td>
-            </tr>
-            <td width=800px>
-                <center>
-                    <span style="font-size:14px"><i> <span style="font-weight:bold">---</span> ---</i>
-                    <br><br><br>
-                </center>
-              </td>
-          </table>
-
-              <hr>
-              <table align=center width=1000px>
-              <tr>
-                <td width=800px>
-                  <center>
-                    <h1>---</h1>
-                  </center>
-                </td>
-              </tr>
-              <tr>
-
-                  <td width=800px>
-                    <center>
-                        <iframe width="560" height="315" src="https://youtu.be/L7HuwDb2MLQ" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><br>
-                  </center>
-                  </td>
-              </tr>
-              <td width=600px>
-                    <center>
-                        <span style="font-size:14px"><i>---</i>
-                        <br><br><br>
-                  </center>
-                  </td>
-          </table>
-
-
-           <hr>
-           -->
-
-            <table align=center width=1100px>
-                <tr>
-                    <td>
-                      <left>
-                <center><h1>Acknowledgements</h1></center>
-                This work is supported in part by a NASA Space Technology Graduate Research Opportunity, the NSF CAREER Program under award 2240163, and the DARPA ANSR program.
-                <br>
-                ---
-                <br>
-                This webpage template was borrowed from <a href="https://agile-but-safe.github.io/">Agile But Safe</a>.
-            </left>
+            This webpage template was borrowed from <a href="https://agile-but-safe.github.io/">Agile But Safe</a>.
+          </left>
         </td>
-        </tr>
-        </table>
+      </tr>
+    </table>
 
-        <br><br>
+    <br><br>
+
 </body>
 </html>
