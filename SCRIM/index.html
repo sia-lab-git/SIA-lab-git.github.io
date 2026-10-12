@@ -214,6 +214,8 @@
     }
     tr.ref td { color: var(--muted); }
     .table-note { font-size: 13.5px; color: var(--muted); margin: 0 0 8px; }
+    .table-wrap.compact { max-width: 620px; }
+    td .sub { color: var(--muted); font-size: 12.5px; font-weight: 400; margin-left: 4px; }
 
     /* ---------- BibTeX ---------- */
     .bib { position: relative; }
@@ -249,6 +251,8 @@
       .eq { padding: 4px 12px; }
       .eq .katex-display { font-size: .74em; }
       th, td { padding: 9px 11px; }
+      .table-wrap.compact td:first-child { white-space: normal; }
+      .table-wrap.compact td .sub { display: block; margin-left: 0; }
     }
   </style>
 </head>
@@ -620,8 +624,39 @@
       <p>
         We learned SCRIM on a Franka Panda for two teleoperated tasks: <b>StackCube</b> (stack the red cube on the green cube,
         70 demonstrations) and <b>TapeHang</b> (hang a roll of tape on a hook, 100 demonstrations). The base policies are
-        fine-tuned from the \(\pi_{0.5}\) vision-language-action model, and the adversary is trained with SAC directly on the
-        robot. It needed only <b>50 rollouts</b> for StackCube and <b>150</b> for TapeHang.
+        fine-tuned from the \(\pi_{0.5}\) vision-language-action model, which uses a flow-matching action expert and is
+        conditioned on three cameras, proprioception and a language instruction. The adversary is trained with SAC directly
+        on the robot. It needed only <b>50 rollouts</b> for StackCube and <b>150</b> for TapeHang.
+      </p>
+
+      <h3>SCRIM improves a real-world VLA</h3>
+      <p>
+        We use the hardware SCRIM scores the same way as in simulation: to reweight fine-tuning on the full dataset, and to
+        curate a 25% subset of the demonstrations.
+      </p>
+      <p class="table-note">Success rate (%) over 25 real-robot rollouts per task and policy. Residual RL gets the same number of robot episodes as SCRIM's adversary (in parentheses).</p>
+      <div class="table-wrap compact">
+        <table>
+          <thead>
+            <tr><th>Method</th><th>StackCube</th><th>TapeHang</th></tr>
+          </thead>
+          <tbody>
+            <tr class="group"><td colspan="3">Full dataset</td></tr>
+            <tr><td>Uniform (standard fine-tuning)</td><td>56</td><td>56</td></tr>
+            <tr><td>Residual RL, matched interaction</td><td>60<span class="sub">(50 ep.)</span></td><td>4<span class="sub">(150 ep.)</span></td></tr>
+            <tr class="ours"><td>SCRIM-weighted (ours)</td><td class="best">76</td><td class="best">88</td></tr>
+            <tr class="group"><td colspan="3">25% subset</td></tr>
+            <tr><td>Uniform selection</td><td>52</td><td>48</td></tr>
+            <tr class="ours"><td>SCRIM selection (ours)</td><td class="best">68</td><td class="best">60</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        SCRIM weighting lifts the fine-tuned VLA from 56% to 76% on StackCube and from 56% to 88% on TapeHang. Residual RL
+        given the same robot episodes barely moves StackCube (60%) and collapses on TapeHang (4%). With a quarter of the
+        demonstrations, SCRIM-selected subsets beat uniformly selected ones (68% vs 52% and 60% vs 48%), and even beat uniform
+        fine-tuning on all the data. Because curation here drops whole demonstrations, it tests dataset compression rather than
+        just resampling transitions.
       </p>
 
       <h3>Mean criticality flags fragile demonstrations</h3>
