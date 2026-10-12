@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SCRIM: Where Small Mistakes Matter</title>
+  <meta name="description" content="SCRIM measures how much a small action error at each demonstration state can derail a robot task, and uses those scores to reweight behavior cloning and curate data.">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Where Small Mistakes Matter: Quantifying State Criticality for Imitation Learning">
+  <meta property="og:description" content="SCRIM finds the few demonstration states where a small action error flips success into failure, and uses them to train better imitation policies with less data.">
+  <meta property="og:url" content="https://sia-lab-git.github.io/SCRIM/">
+  <meta property="og:image" content="https://sia-lab-git.github.io/SCRIM/resources/teaser.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c43c4e'/%3E%3Cpath d='M4 23h7l3-12 4 16 3-9h7' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '\\(', right: '\\)', display: false}], throwOnError: false});"></script>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1c1c1f;
+      --ink-2: #4a4b52;
+      --muted: #74757d;
+      --line: #e6e6ea;
+      --bg: #ffffff;
+      --bg-soft: #f6f6f8;
+      --accent: #c43c4e;
+      --accent-soft: #fbecee;
+      --teal: #23907f;
+      --teal-soft: #e7f4f1;
+      --radius: 12px;
+      --content: 880px;
+      --wide: 1120px;
+      --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+      --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 17px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .wrap { max-width: var(--content); margin: 0 auto; padding: 0 20px; }
+    .wrap-wide { max-width: var(--wide); margin: 0 auto; padding: 0 20px; }
+
+    /* ---------- Hero ---------- */
+    .hero { padding: 64px 0 28px; text-align: center; }
+    .badge {
+      display: inline-block;
+      font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--accent); background: var(--accent-soft);
+      padding: 5px 12px; border-radius: 999px; margin-bottom: 20px;
+    }
+    h1 {
+      font-family: var(--serif); font-weight: 600;
+      font-size: clamp(34px, 6vw, 54px); line-height: 1.1; letter-spacing: -.01em;
+      margin: 0 0 10px;
+    }
+    .subtitle {
+      font-family: var(--serif); font-weight: 500;
+      font-size: clamp(19px, 2.8vw, 25px); color: var(--ink-2);
+      margin: 0 0 30px;
+    }
+    .authors { font-size: 18px; font-weight: 500; margin: 0 0 8px; }
+    .authors span { white-space: nowrap; margin: 0 10px; }
+    .authors sup, .affils sup { font-size: 11px; color: var(--muted); font-weight: 500; margin-left: 1px; }
+    .affils { font-size: 15px; color: var(--ink-2); margin: 0 0 6px; }
+    .affils span { white-space: nowrap; margin: 0 9px; }
+    .note { font-size: 13.5px; color: var(--muted); margin: 0 0 26px; }
+
+    .links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 15px; font-weight: 500;
+      padding: 9px 18px; border-radius: 999px;
+      background: var(--ink); color: #fff;
+      border: 1px solid var(--ink);
+      transition: background .15s, transform .15s;
+    }
+    .btn:hover { text-decoration: none; background: #3a3a40; transform: translateY(-1px); }
+    .btn svg { width: 17px; height: 17px; flex: none; }
+    .btn.soon { background: transparent; color: var(--muted); border-color: var(--line); cursor: default; }
+    .btn.soon:hover { transform: none; background: transparent; }
+    .btn.soon em { font-style: normal; font-size: 12px; opacity: .8; }
+
+    /* ---------- Figures ---------- */
+    figure { margin: 0; }
+    figure a { display: block; }
+    figcaption { font-size: 15px; color: var(--ink-2); margin-top: 12px; line-height: 1.55; }
+    figcaption b { color: var(--ink); font-weight: 600; }
+    .teaser { padding: 12px 0 8px; }
+    figcaption.narrow { max-width: var(--content); margin: 14px auto 0; padding: 0 4px; }
+    .teaser figcaption { max-width: var(--content); margin-left: auto; margin-right: auto; text-align: center; }
+    .hl { color: var(--accent); font-weight: 600; }
+    .hl-teal { color: var(--teal); font-weight: 600; }
+
+    /* ---------- Sections ---------- */
+    section { padding: 52px 0; }
+    section.soft { background: var(--bg-soft); }
+    h2 {
+      font-family: var(--serif); font-weight: 600;
+      font-size: clamp(26px, 3.6vw, 32px); line-height: 1.2;
+      margin: 0 0 18px;
+    }
+    h3 { font-size: 19px; font-weight: 600; margin: 40px 0 10px; line-height: 1.35; }
+    h3:first-of-type { margin-top: 8px; }
+    p { margin: 0 0 16px; }
+    .lead { font-size: 19px; line-height: 1.6; color: var(--ink); }
+
+    .tldr {
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 16px 20px; margin: 0 0 30px;
+      font-size: 18px;
+    }
+    .tldr b { color: var(--accent); }
+
+    /* ---------- Stats ---------- */
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 34px; }
+    .stat {
+      background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 20px 20px 18px;
+    }
+    .stat .num { font-family: var(--serif); font-size: 36px; font-weight: 600; line-height: 1; color: var(--accent); }
+    .stat .num small { font-size: 18px; color: var(--muted); font-weight: 500; }
+    .stat p { font-size: 14.5px; color: var(--ink-2); margin: 10px 0 0; line-height: 1.5; }
+
+    /* ---------- Method steps ---------- */
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 26px 0 30px; counter-reset: step; }
+    .step {
+      position: relative;
+      background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 22px 20px 18px;
+    }
+    .step::before {
+      counter-increment: step; content: counter(step);
+      display: inline-grid; place-items: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--ink); color: #fff; font-size: 14px; font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .step h4 { font-size: 16.5px; font-weight: 600; margin: 0 0 6px; }
+    .step p { font-size: 15px; color: var(--ink-2); margin: 0; line-height: 1.55; }
+
+    .eq {
+      background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 6px 18px; margin: 0 0 18px; overflow-x: auto;
+    }
+    .eq .katex-display { margin: 14px 0; }
+    .legend-row { display: flex; flex-wrap: wrap; gap: 10px 26px; font-size: 15px; color: var(--ink-2); margin-bottom: 22px; }
+    .legend-row > span::before {
+      content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+      margin-right: 8px; vertical-align: 1px;
+    }
+    .legend-row > .crit::before { background: var(--accent); }
+    .legend-row > .forg::before { background: var(--teal); }
+
+    .uses { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .use { border-radius: var(--radius); padding: 18px 20px; background: var(--bg); border: 1px solid var(--line); }
+    .use h4 { margin: 0 0 6px; font-size: 16.5px; font-weight: 600; }
+    .use p { margin: 0; font-size: 15px; color: var(--ink-2); line-height: 1.55; }
+
+    /* ---------- Tabs ---------- */
+    .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0 14px; }
+    .tab {
+      font: inherit; font-size: 14.5px; font-weight: 500;
+      padding: 7px 15px; border-radius: 999px; cursor: pointer;
+      background: var(--bg); color: var(--ink-2); border: 1px solid var(--line);
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .tab:hover { border-color: #c9c9cf; color: var(--ink); }
+    .tab[aria-selected="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .panel[hidden] { display: none; }
+    .frame { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+
+    /* ---------- Side by side ---------- */
+    .split { display: grid; grid-template-columns: 1fr 300px; gap: 32px; align-items: center; }
+
+    /* ---------- Tables ---------- */
+    .table-wrap { overflow-x: auto; margin: 18px 0 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); }
+    table { border-collapse: collapse; width: 100%; font-size: 15px; font-variant-numeric: tabular-nums; }
+    th, td { padding: 10px 14px; text-align: right; white-space: nowrap; }
+    th:first-child, td:first-child { text-align: left; }
+    thead th { font-weight: 600; font-size: 13.5px; color: var(--ink-2); border-bottom: 1px solid var(--line); background: var(--bg-soft); }
+    tbody tr + tr td { border-top: 1px solid #f0f0f3; }
+    td.best { font-weight: 700; }
+    tr.ours td { background: var(--accent-soft); }
+    tr.ours td:first-child { color: var(--accent); font-weight: 600; }
+    td.avg, th.avg { border-left: 1px solid var(--line); }
+    tr.group td {
+      background: var(--bg); color: var(--muted); font-size: 12.5px; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase; padding-top: 14px; padding-bottom: 6px;
+    }
+    tr.ref td { color: var(--muted); }
+    .table-note { font-size: 13.5px; color: var(--muted); margin: 0 0 8px; }
+
+    /* ---------- BibTeX ---------- */
+    .bib { position: relative; }
+    .bib pre {
+      margin: 0; padding: 20px 22px; overflow-x: auto;
+      background: #1e1f24; color: #e9e9ee; border-radius: var(--radius);
+      font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .copy {
+      position: absolute; top: 12px; right: 12px;
+      font: 500 13px var(--sans); padding: 6px 12px; border-radius: 8px; cursor: pointer;
+      background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.18);
+    }
+    .copy:hover { background: rgba(255,255,255,.18); }
+
+    ul.plain { margin: 0 0 16px; padding-left: 20px; }
+    ul.plain li { margin-bottom: 8px; }
+
+    footer { padding: 34px 0 44px; text-align: center; font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); }
+    footer a { color: var(--ink-2); }
+
+    @media (max-width: 760px) {
+      body { font-size: 16px; }
+      .wrap, .wrap-wide { padding: 0 16px; }
+      .hero { padding-top: 44px; }
+      section { padding: 40px 0; }
+      .stats, .steps, .uses { grid-template-columns: 1fr; }
+      .split { grid-template-columns: 1fr; gap: 18px; }
+      .split figure { max-width: 340px; margin: 0 auto; }
+      .lead { font-size: 17.5px; }
+      .tldr { font-size: 16.5px; }
+      .frame { padding: 8px; }
+      .eq { padding: 4px 12px; }
+      .eq .katex-display { font-size: .74em; }
+      th, td { padding: 9px 11px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===================== Hero ===================== -->
+  <header class="hero">
+    <div class="wrap">
+      <div class="badge">SCRIM</div>
+      <h1>Where Small Mistakes Matter</h1>
+      <p class="subtitle">Quantifying State Criticality for Imitation Learning</p>
+
+      <!-- Add personal-page links by wrapping a name in <a href="...">...</a> -->
+      <p class="authors">
+        <span>Yusuf Umut Ciftci<sup>1,2*</sup></span>
+        <span>Joonwon Kang<sup>1,3*</sup></span>
+        <span>Ajay Suresha Sathya<sup>1,4</sup></span>
+        <span><a href="https://smlbansal.github.io/">Somil Bansal</a><sup>1</sup></span>
+      </p>
+      <p class="affils">
+        <span><sup>1</sup>Stanford University</span>
+        <span><sup>2</sup>University of Southern California</span>
+        <span><sup>3</sup>Georgia Institute of Technology</span>
+        <span><sup>4</sup>DIENS, Inria Paris, PSL University</span>
+      </p>
+      <p class="note">* Equal contribution</p>
+
+      <div class="links">
+        <!-- When the paper / code are public, replace each "soon" span with:
+             <a class="btn" href="URL">ICON Label</a> -->
+        <span class="btn soon" title="Coming soon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>
+          Paper <em>soon</em>
+        </span>
+        <span class="btn soon" title="Coming soon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l16 16M20 4L4 20"/></svg>
+          arXiv <em>soon</em>
+        </span>
+        <span class="btn soon" title="Coming soon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>
+          Code <em>soon</em>
+        </span>
+        <a class="btn" href="#bibtex">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8l-4 4 4 4M17 8l4 4-4 4M14 4l-4 16"/></svg>
+          BibTeX
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== Teaser ===================== -->
+  <div class="wrap-wide teaser">
+    <figure>
+      <a href="resources/teaser.png"><img src="resources/teaser.png" width="1953" height="569"
+        alt="SCRIM criticality score along real-robot demonstrations of cube stacking and tape hanging, with peaks at pre-grasp and alignment moments."></a>
+      <figcaption>
+        <b>SCRIM along real-robot demonstrations</b> of cube stacking (left) and tape hanging (right).
+        The score <span class="hl">peaks at the moments where a small action error would derail the task</span>:
+        lining up before the grasp, aligning the cube for placement, and aligning the tape with the hook.
+        Everywhere else it stays near zero.
+      </figcaption>
+    </figure>
+  </div>
+
+  <!-- ===================== Abstract ===================== -->
+  <section>
+    <div class="wrap">
+      <div class="tldr">
+        <b>TL;DR</b> Not every state in a demonstration matters equally. SCRIM finds the few where a small action error
+        flips success into failure, and uses them to train better imitation policies with less data.
+      </div>
+
+      <h2>Abstract</h2>
+      <p>
+        Imitation learning typically treats every demonstration state as equally important, optimizing a behavior-cloning
+        objective uniformly across the dataset. Yet not all states are created equal: in a small number of critical states,
+        even a slight deviation from the expert action can lead to a failure, while in many other states such errors are
+        recoverable and inconsequential.
+      </p>
+      <p>
+        We formalize state criticality in imitation learning as the worst-case degradation in downstream value induced by a
+        bounded perturbation of the expert action at a given state. We then propose <b>SCRIM</b>, a practical
+        <b>S</b>tate <b>CRI</b>ticality <b>M</b>easure that estimates this quantity by training an adversarial disturbance
+        policy and a value critic around a fixed imitation policy. SCRIM assigns each demonstration state a score reflecting
+        how vulnerable the task outcome is to small, policy-relevant action errors.
+      </p>
+      <p>
+        We show that these scores can be used to reweight behavior-cloning losses, improving imitation at consequential
+        states and increasing overall task performance. We further show that SCRIM enables data curation by selecting compact,
+        high-value subsets of demonstrations that preserve performance while substantially reducing the amount of training data.
+        We evaluate SCRIM across various simulated and real-world robotic manipulation tasks, and demonstrate that SCRIM
+        improves policy training, enables efficient data selection, and provides interpretable insights into which moments in
+        a demonstration are most critical for task success.
+      </p>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="num">61.5% <small>vs 48.5%</small></div>
+          <p>Average success of SCRIM-weighted behavior cloning vs. standard (uniform) BC across four simulated tasks.</p>
+        </div>
+        <div class="stat">
+          <div class="num">25%</div>
+          <p>of the demonstrations, picked by SCRIM, beat uniform BC trained on the full dataset (54.0% vs 48.5%).</p>
+        </div>
+        <div class="stat">
+          <div class="num">50</div>
+          <p>real-robot rollouts were enough to learn criticality for cube stacking (150 for tape hanging).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Method ===================== -->
+  <section class="soft" id="method">
+    <div class="wrap">
+      <h2>How SCRIM works</h2>
+      <p class="lead">
+        We ask a simple question at every demonstration state: <em>if the robot's action were off by a little,
+        how much more likely would the task fail?</em> To answer it, we let an adversary push a trained policy around
+        and learn which nudges hurt.
+      </p>
+
+      <div class="steps">
+        <div class="step">
+          <h4>Freeze the imitation policy</h4>
+          <p>Train a behavior-cloning policy \(\pi\) as usual, then freeze it. It becomes the base controller.</p>
+        </div>
+        <div class="step">
+          <h4>Train a bounded adversary</h4>
+          <p>An adversary adds a small disturbance \(\delta\) to every action, \(|\delta_j| \le \epsilon_j\), and is
+            trained with SAC to make the task fail. A critic \(\bar{Q}\) learns the outcome value of each executed action.</p>
+        </div>
+        <div class="step">
+          <h4>Score every demo state</h4>
+          <p>At each demonstration state, compare the critic's value of the expert action with its value after the
+            adversary's worst nudge.</p>
+        </div>
+      </div>
+
+      <p>
+        The reward is sparse: \(-1\) for success, \(0\) otherwise, so a <em>higher</em> \(\bar{Q}\) means a worse outcome.
+        The criticality of a state is the worst-case increase in that value from an in-budget perturbation of the expert
+        action \(\pi_E(s)\):
+      </p>
+      <div class="eq">
+        $$C_\epsilon(s) \;=\; \max_{\delta \in \Delta_\epsilon} \bar{Q}\big(s,\, \pi_E(s) + \delta\big) \;-\; \bar{Q}\big(s,\, \pi_E(s)\big) \;\ge\; 0$$
+      </div>
+      <p>In practice, the learned adversary \(\delta_\pi(s)\) stands in for the inner maximization:</p>
+      <div class="eq">
+        $$\Delta Q(s) \;=\; \bar{Q}\big(s,\, \pi_E(s) + \delta_\pi(s)\big) \;-\; \bar{Q}\big(s,\, \pi_E(s)\big)$$
+      </div>
+      <div class="legend-row">
+        <span class="crit"><b>Critical</b>: \(\Delta Q(s)\) is large. A small error can turn a likely success into a likely failure.</span>
+        <span class="forg"><b>Forgiving</b>: \(\Delta Q(s) \approx 0\). No small error changes the outcome.</span>
+      </div>
+
+      <p>
+        Because the adversary only explores a small neighborhood around the policy's actions, the critic only has to be
+        accurate there, not across the entire action space. And breaking a task is much easier to learn than fixing it, so
+        this takes far less interaction than learning a corrective residual policy.
+      </p>
+
+      <h3>Putting the scores to work</h3>
+      <p>The scores are standardized and turned into a sampling distribution over demonstration states. We use it in two ways:</p>
+      <div class="uses">
+        <div class="use">
+          <h4>Criticality-weighted training</h4>
+          <p>Train a fresh BC policy that sees critical states more often, so its capacity goes to the moments that decide the task.</p>
+        </div>
+        <div class="use">
+          <h4>Data curation</h4>
+          <p>Keep a small subset of the demonstrations, chosen by criticality, and train standard BC on it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Results: criticality ===================== -->
+  <section id="results">
+    <div class="wrap">
+      <h2>SCRIM finds the moments that matter</h2>
+      <p>
+        We compare SCRIM to four other ways of scoring states: distance from the gripper to the object, action magnitude,
+        and two value-based measures (the variance of the policy's Q-function over actions, and the gap between the best
+        and average Q-value). All scores are normalized to the same scale and plotted along a single demonstration.
+      </p>
+    </div>
+    <div class="wrap-wide">
+      <div class="tabs" role="tablist" aria-label="Criticality along demonstrations" data-tabs="crit" style="justify-content:center">
+        <button class="tab" role="tab" aria-selected="true" aria-controls="crit-hammer" id="tab-crit-hammer">Hammer</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="crit-stackcube" id="tab-crit-stackcube" tabindex="-1">StackCube</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="crit-turnfaucet" id="tab-crit-turnfaucet" tabindex="-1">TurnFaucet</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="crit-peginsertion" id="tab-crit-peginsertion" tabindex="-1">PegInsertion</button>
+      </div>
+      <div class="panel" role="tabpanel" id="crit-hammer" aria-labelledby="tab-crit-hammer">
+        <figure>
+          <div class="frame"><a href="resources/criticality_hammer.png"><img src="resources/criticality_hammer.png" width="2125" height="739" loading="lazy"
+            alt="Normalized criticality along a MetaWorld hammer demonstration: SCRIM peaks when the gripper aligns over the hammer handle; baselines peak elsewhere."></a></div>
+          <figcaption class="narrow">
+            <b>Hammer (MetaWorld).</b> SCRIM peaks as the gripper lines up over the handle, just before the grasp. Nothing has
+            been touched yet, but a small error here means an unstable grasp and a dropped hammer. Distance-to-object saturates
+            after the approach, action magnitude spikes at every phase change, and the value-based measures peak later, during
+            contact, where the Q-function is most sensitive to arbitrary actions rather than to small errors.
+          </figcaption>
+        </figure>
+      </div>
+      <div class="panel" role="tabpanel" id="crit-stackcube" aria-labelledby="tab-crit-stackcube" hidden>
+        <figure>
+          <div class="frame"><a href="resources/criticality_stackcube.png"><img src="resources/criticality_stackcube.png" width="2166" height="801" loading="lazy"
+            alt="Normalized criticality along a ManiSkill2 StackCube demonstration: SCRIM peaks while aligning the cube over the target."></a></div>
+          <figcaption class="narrow">
+            <b>StackCube (ManiSkill2).</b> SCRIM stays flat through the free-space reach and rises sharply while the red cube is
+            aligned over the green one, then falls once it is placed.
+          </figcaption>
+        </figure>
+      </div>
+      <div class="panel" role="tabpanel" id="crit-turnfaucet" aria-labelledby="tab-crit-turnfaucet" hidden>
+        <figure>
+          <div class="frame"><a href="resources/criticality_turnfaucet.png"><img src="resources/criticality_turnfaucet.png" width="2099" height="739" loading="lazy"
+            alt="Normalized criticality along a ManiSkill2 TurnFaucet demonstration for SCRIM and baselines."></a></div>
+          <figcaption class="narrow">
+            <b>TurnFaucet (ManiSkill2).</b> SCRIM stays near zero during the approach and rises once the gripper engages the handle, peaking at a fragile moment where it turns the faucet by the tip of the handle.
+          </figcaption>
+        </figure>
+      </div>
+      <div class="panel" role="tabpanel" id="crit-peginsertion" aria-labelledby="tab-crit-peginsertion" hidden>
+        <figure>
+          <div class="frame"><a href="resources/criticality_peginsertion.png"><img src="resources/criticality_peginsertion.png" width="2103" height="739" loading="lazy"
+            alt="Normalized criticality along a ManiSkill2 PegInsertion demonstration for SCRIM and baselines."></a></div>
+          <figcaption class="narrow">
+            <b>PegInsertion (ManiSkill2).</b> SCRIM is flat through grasping and transport and spikes just before insertion, when the peg must line up with the hole. Distance-to-object and action magnitude stay saturated for most of the episode.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <h3>Criticality doubles as a measure of task difficulty</h3>
+      <div class="split">
+        <div>
+          <p>
+            SCRIM is computed with a single critic trained across all demonstrations of a task, so scores are comparable
+            across trajectories and task variations.
+          </p>
+          <p>
+            On TurnFaucet, which spans ten faucet models, ranking the models by their mean SCRIM gives an intuitive
+            easy-to-hard ordering: broad, forgiving handles score low, while handles that need a precise grasp and turn
+            score high.
+          </p>
+        </div>
+        <figure>
+          <a href="resources/faucet_difficulty.png"><img src="resources/faucet_difficulty.png" width="627" height="494" loading="lazy"
+            alt="Four faucet models ordered by mean SCRIM, from 0.0011 and 0.0013 for the easiest to 0.0036 and 0.0039 for the hardest."></a>
+          <figcaption>Faucet models ordered by mean SCRIM: the two easiest (top) and the two hardest (bottom).</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Results: training ===================== -->
+  <section class="soft">
+    <div class="wrap">
+      <h2>Better policies from the same demonstrations</h2>
+      <p>
+        Demonstration datasets are dominated by easy, recoverable free-space motion. Uniform BC spreads its capacity across
+        all of it. Weighting training by SCRIM shifts that capacity toward the few states that decide the outcome.
+      </p>
+
+      <h3>Criticality-weighted training</h3>
+      <p class="table-note">Success rate (%) over 100 rollouts. Every measure is calibrated to the same sharpness, so they differ only in <em>which</em> states they emphasize.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Weighting</th><th>StackCube</th><th>TurnFaucet</th><th>PegInsertion</th><th>Hammer</th><th class="avg">Average</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Uniform (standard BC)</td><td>68.0</td><td>39.0</td><td class="best">26.0</td><td>61.0</td><td class="avg">48.5</td></tr>
+            <tr><td>Distance to object</td><td>4.0</td><td>4.0</td><td>0.0</td><td>0.0</td><td class="avg">2.0</td></tr>
+            <tr><td>Action magnitude</td><td>41.0</td><td>21.0</td><td>5.0</td><td>69.0</td><td class="avg">34.0</td></tr>
+            <tr><td>Q-function variance</td><td>77.0</td><td>44.6</td><td>10.0</td><td>65.0</td><td class="avg">49.2</td></tr>
+            <tr><td>Q-value discrepancy</td><td>74.0</td><td>33.0</td><td>10.0</td><td>67.0</td><td class="avg">46.0</td></tr>
+            <tr class="ours"><td>SCRIM (ours)</td><td class="best">91.0</td><td class="best">47.0</td><td>25.0</td><td class="best">83.0</td><td class="avg best">61.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        SCRIM weighting raises average success from 48.5% to 61.5%, improving three of four tasks and matching uniform BC on
+        PegInsertion. The strongest baseline, Q-function variance, lands barely above uniform BC, and the geometric heuristics
+        hurt because they underweight the states that actually matter.
+      </p>
+    </div>
+
+    <div class="wrap-wide">
+      <figure style="margin-top:26px">
+        <div class="frame"><a href="resources/error_vs_criticality.png"><img src="resources/error_vs_criticality.png" width="2217" height="634" loading="lazy"
+          alt="Histograms of BC action-error percentile against SCRIM percentile on StackCube and PegInsertion, for uniform and SCRIM-weighted BC."></a></div>
+        <figcaption class="narrow">
+          <b>Where does the policy make its mistakes?</b> Action-error percentile vs. SCRIM percentile, with Spearman
+          correlation \(\rho\) and success rate. On StackCube, uniform BC makes its largest errors at critical states;
+          SCRIM weighting flattens that relationship and lifts success from 68% to 91%. On PegInsertion, the base policy is
+          already accurate at critical states, so reweighting has little room to help.
+        </figcaption>
+      </figure>
+    </div>
+
+    <div class="wrap">
+      <h3>Less data, same performance</h3>
+      <p>
+        Next we use SCRIM to curate data: sample 25% of the demonstrations according to criticality, then train standard BC
+        on that subset.
+      </p>
+      <p class="table-note">Success rate (%) over 100 rollouts. Bold marks the best 25% subset per task.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Selection</th><th>StackCube</th><th>TurnFaucet</th><th>PegInsertion</th><th>Hammer</th><th class="avg">Average</th></tr>
+          </thead>
+          <tbody>
+            <tr class="group"><td colspan="6">Full dataset (reference)</td></tr>
+            <tr class="ref"><td>Uniform (standard BC)</td><td>68.0</td><td>39.0</td><td>26.0</td><td>61.0</td><td class="avg">48.5</td></tr>
+            <tr class="ref"><td>SCRIM-weighted</td><td>91.0</td><td>47.0</td><td>25.0</td><td>83.0</td><td class="avg">61.5</td></tr>
+            <tr class="group"><td colspan="6">25% subset</td></tr>
+            <tr><td>Uniform sampling</td><td>73.0</td><td>41.0</td><td class="best">14.0</td><td>60.0</td><td class="avg">47.0</td></tr>
+            <tr><td>Distance to object</td><td>9.0</td><td>1.0</td><td>0.0</td><td>0.0</td><td class="avg">2.5</td></tr>
+            <tr><td>Action magnitude</td><td>39.0</td><td>12.0</td><td>7.0</td><td>60.0</td><td class="avg">29.5</td></tr>
+            <tr><td>Q-function variance</td><td>76.0</td><td>37.0</td><td>8.0</td><td>70.0</td><td class="avg">47.8</td></tr>
+            <tr><td>Q-value discrepancy</td><td>81.0</td><td>29.0</td><td>11.0</td><td>73.0</td><td class="avg">48.5</td></tr>
+            <tr class="ours"><td>SCRIM (ours)</td><td class="best">83.0</td><td class="best">43.0</td><td>13.0</td><td class="best">77.0</td><td class="avg best">54.0</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        With a quarter of the data, SCRIM-selected subsets reach 54.0% on average, above uniform BC trained on <em>all</em>
+        the data (48.5%).
+      </p>
+
+      <h3>Cheaper than learning a fix</h3>
+      <p>
+        A natural alternative is residual RL: learn a corrective policy on top of the frozen BC policy. Our intuition is that
+        actions that break a task are far more abundant than actions that fix it, so the adversarial problem is easier to explore.
+      </p>
+      <p class="table-note">Success rate (%) at a matched interaction budget. The last column is how much interaction residual RL needs, relative to the budget, to reach SCRIM.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Task</th><th>Budget</th><th>Residual RL</th><th>SCRIM-weighted BC</th><th>Interaction to match</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>StackCube</td><td>100k</td><td>0.0</td><td class="best">85.0</td><td>7.5&times;</td></tr>
+            <tr><td>TurnFaucet</td><td>200k</td><td>16.0</td><td class="best">52.0</td><td>1.5&times;</td></tr>
+            <tr><td>PegInsertion</td><td>500k</td><td>0.0</td><td class="best">18.0</td><td>5.8&times;</td></tr>
+            <tr><td>Hammer</td><td>100k</td><td class="best">79.0</td><td>74.0</td><td>&mdash;</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        On the three ManiSkill tasks, residual RL falls below the base policy it is meant to correct at the same budget.
+        Hammer is the exception: residual RL leads early there, although SCRIM reaches the same peak success within 500k
+        interactions. The two approaches are complementary.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== Hardware ===================== -->
+  <section id="hardware">
+    <div class="wrap">
+      <h2>On a real robot</h2>
+      <p>
+        We learned SCRIM on a Franka Panda for two teleoperated tasks: <b>StackCube</b> (stack the red cube on the green cube,
+        70 demonstrations) and <b>TapeHang</b> (hang a roll of tape on a hook, 100 demonstrations). The base policies are
+        fine-tuned from the \(\pi_{0.5}\) vision-language-action model, and the adversary is trained with SAC directly on the
+        robot. It needed only <b>50 rollouts</b> for StackCube and <b>150</b> for TapeHang.
+      </p>
+
+      <h3>Mean criticality flags fragile demonstrations</h3>
+      <p>
+        Because scores are comparable across trajectories, a demonstration's mean SCRIM grades its quality.
+        A <span class="hl">high mean</span> marks a success that a small execution error would have turned into a failure;
+        a <span class="hl-teal">low mean</span> marks a robust one.
+      </p>
+    </div>
+    <div class="wrap-wide">
+      <div class="tabs" role="tablist" aria-label="Demonstration quality on hardware" data-tabs="hw" style="justify-content:center">
+        <button class="tab" role="tab" aria-selected="true" aria-controls="hw-stackcube" id="tab-hw-stackcube">StackCube</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="hw-tapehang" id="tab-hw-tapehang" tabindex="-1">TapeHang</button>
+      </div>
+      <div class="panel" role="tabpanel" id="hw-stackcube" aria-labelledby="tab-hw-stackcube">
+        <figure>
+          <div class="frame"><a href="resources/hw_quality_stackcube.png"><img src="resources/hw_quality_stackcube.png" width="2034" height="752" loading="lazy"
+            alt="Two real-robot cube-stacking demonstrations: high mean SCRIM 0.84 with a fragile edge placement, and low mean SCRIM 0.42 with a centered, stable placement."></a></div>
+          <figcaption class="narrow">
+            <b>StackCube.</b> The high-mean demonstration (0.84) sets the cube on the edge of the support, where it barely
+            balances and a slight deviation would topple it. The low-mean demonstration (0.42) sets it down centered and stable.
+          </figcaption>
+        </figure>
+      </div>
+      <div class="panel" role="tabpanel" id="hw-tapehang" aria-labelledby="tab-hw-tapehang" hidden>
+        <figure>
+          <div class="frame"><a href="resources/hw_quality_tapehang.png"><img src="resources/hw_quality_tapehang.png" width="2031" height="752" loading="lazy"
+            alt="Two real-robot tape-hanging demonstrations: high mean SCRIM 1.02 with a fragile hang, and low mean SCRIM 0.20 with a stable hang."></a></div>
+          <figcaption class="narrow">
+            <b>TapeHang.</b> The high-mean demonstration (1.02) spikes sharply at the final alignment with the hook, a risky
+            placement that could easily have bounced off. The low-mean demonstration (0.20) stays low throughout.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Limitations ===================== -->
+  <section class="soft">
+    <div class="wrap">
+      <h2>Limitations</h2>
+      <ul class="plain">
+        <li>SCRIM needs no expert supervision, but it does need interaction with the environment. That is cheaper than
+          training a full residual RL policy, yet can still be hard where real-world failures are costly. Learning criticality
+          in simulation, through real-to-sim reconstruction, or from logged failures with offline RL are promising directions.</li>
+        <li>SCRIM improves imitation only within the support of the demonstrations. It can emphasize the states that matter,
+          but it cannot discover recovery behaviors that are missing from the data.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== BibTeX ===================== -->
+  <section id="bibtex">
+    <div class="wrap">
+      <h2>BibTeX</h2>
+      <div class="bib">
+        <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre id="bibtex-code">@misc{ciftci2026scrim,
+  title  = {Where Small Mistakes Matter: Quantifying State Criticality for Imitation Learning},
+  author = {Ciftci, Yusuf Umut and Kang, Joonwon and Sathya, Ajay Suresha and Bansal, Somil},
+  year   = {2026}
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <a href="https://smlbansal.github.io/sia-lab/">Safe and Intelligent Autonomy (SIA) Lab</a> &middot; Stanford University
+    </div>
+  </footer>
+
+  <script>
+    // Tabs: click or arrow keys switch panels within a tablist.
+    document.querySelectorAll('[role="tablist"]').forEach(function (list) {
+      var tabs = Array.prototype.slice.call(list.querySelectorAll('[role="tab"]'));
+      function select(tab) {
+        tabs.forEach(function (t) {
+          var on = t === tab;
+          t.setAttribute('aria-selected', on);
+          t.tabIndex = on ? 0 : -1;
+          document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+        });
+      }
+      tabs.forEach(function (tab, i) {
+        tab.addEventListener('click', function () { select(tab); });
+        tab.addEventListener('keydown', function (e) {
+          var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+          if (!d) return;
+          var next = tabs[(i + d + tabs.length) % tabs.length];
+          select(next); next.focus();
+        });
+      });
+    });
+
+    // Copy BibTeX.
+    document.querySelectorAll('[data-copy]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var text = document.getElementById(btn.dataset.copy).textContent;
+        var done = function () { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1500); };
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(done, function () {});
+        }
+      });
+    });
+  </script>
+</body>
+</html>
